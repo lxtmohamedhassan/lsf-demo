@@ -46,6 +46,7 @@ const Model = types
     children: Types.unionArray([
       'view',
       'header',
+      'quote',
       'labels',
       'label',
       'table',
