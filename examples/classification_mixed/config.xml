@@ -1,4 +1,5 @@
 <View>
+  <Quote value="Hello World!" style="color:#09c" size="1" underline="true" bold="true" />
   <Labels name="label" toName="text">
     <Label value="Simple" />
     <Label value="Complex" />

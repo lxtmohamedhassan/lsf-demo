@@ -76,7 +76,7 @@ import { ClassificationMixed } from '../examples/classification_mixed';
  */
 // import { AllTypes } from "../examples/all_types";
 
-const data = ClassificationMixed;
+const data = ClassificationMixed; // ClassificationMixed - Dialogue
 
 function getData(task) {
   if (task && task.data) {
