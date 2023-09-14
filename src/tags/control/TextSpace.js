@@ -36,11 +36,9 @@ import { FF_LSDV_4583, isFF } from '../../utils/feature-flags';
  * @param {string} toName                     - Name of the element that you want to annotate
  * @param {number} [rows=4]                  - Number of visible text rows in the textspace
  * @param {number} [cols=50]                 - Number of visible text columns in the textspace
- * @param {boolean} [showCount=false]      - Whether to show character count
  * @param {boolean} [required=false]          - Whether to require annotation
  * @param {string} [requiredMessage]          - Message to show if annotation is required but missing
  * @param {boolean} [perItem]                 - Use this tag to annotate specific items inside the object instead of the whole object[^FF_LSDV_4583]
- * @param {string} [defaultValue]             - Default textspace value; will be added automatically to result for required fields
  */
 
 const { TextArea } = Input;
@@ -49,9 +47,8 @@ const TagAttrs = types.model({
   toname: types.maybeNull(types.string),
   rows: types.optional(types.string, '4'),
   cols: types.optional(types.string, '50'),
-  showCount: types.optional(types.boolean, false),
   value: types.optional(types.string, ''),
-  defaultvalue: types.maybeNull(types.string),
+  showcount: types.optional(types.boolean, false), // no camelCase naming
 });
 
 const Model = types
@@ -63,48 +60,27 @@ const Model = types
   .views(self => ({
 
     get valueType() {
-      console.log('33333333333'); // once the tag loads - once hit enter - blur the editable tag input - on click remove icon
-      return 'text';
+      return 'text'; // 'text' will be the key of the TextSpace value in the result object
     },
-    get serializableValue() {
-      console.log('777777');
-      if (!self.regions.length) return null;
-      return { text: self.selectedValues() };
-    },
-    selectedValues() {
+    selectedValues() { // this view must exist as any control-tag must follow the ClassificationBase mixin rules
       console.log('View 1: selectedValues()');
       return self._value;
     },
 
-    get holdsState() {
+    get holdsState() { // this view must exist to keep the result object in the state tree
       console.log('View 2: holdsState()');
       return isDefined(self._value);
     },
   }))
   .actions(self => ({
-    getSelectedString() {
-      console.log('Action 1: getSelectedString()');
-      return self._value || '';
-    },
-
-    needsUpdate() {
-      console.log('Action 2: needsUpdate()');
-      if (self.result) self._value = self.result.mainValue;
-      else self._value = null;
-    },
-
-    beforeSend() {
-      if (!isDefined(self.defaultvalue)) return;
-      // Add defaultValue to results for top-level controls
+    beforeSend() { // this action gets executed before submitting the task values
       console.log('Action 3: beforeSend()');
-      if (!isDefined(self._value)) self.setValue(self.defaultValue);
+      // Add defaultValue to results if no value added in the TextSpace
+      if (!isDefined(self._value)) alert('Value is required');
+      return;
     },
 
-    unselectAll() {
-      console.log('Action 4: unselectAll()');
-    },
-
-    setValue(value) {
+    setValue(value) { // this action is responsible for updating the result object with the onChange value
       console.log('Action 5: setValue()');
       self._value = value;
       self.updateResult();
@@ -115,11 +91,6 @@ const Model = types
       const value = e.target.value;
 
       self.setValue(value);
-    },
-
-    updateFromResult() {
-      console.log('Action 7: updateFromResult()');
-      this.needsUpdate();
     },
 
     /* requiredModal() {
@@ -142,16 +113,18 @@ const TextSpaceModel = types.compose('TextSpaceModel',
 
 const HtxTextSpace = inject('store')(
   observer(({ item, store }) => {
+    const props = {
+      rows: item.rows,
+      cols: item.cols,
+      name: item.name,
+      value: item._value,
+      showCount: item.showcount,
+      onChange: item.onChange,
+    };
+
     return (
       <div>
-        <TextArea
-          rows={item.rows}
-          cols={item.cols}
-          name={item.name}
-          showCount={item.showCount}
-          value={item._value || item.defaultValue}
-          onChange={item.onChange}
-        />
+        <TextArea {...props} />
         {/* {store.settings.enableTooltips && item.required && (
           <sup style={{ fontSize: '9px' }}>Requiredzzz</sup>
         )} */}
