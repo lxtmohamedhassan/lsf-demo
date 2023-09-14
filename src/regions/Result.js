@@ -57,6 +57,7 @@ const Result = types
       'pairwise',
       'videorectangle',
       'ranker',
+      'textspace',
     ]),
     // @todo much better to have just a value, not a hash with empty fields
     value: types.model({

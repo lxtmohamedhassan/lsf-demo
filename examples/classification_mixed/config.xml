@@ -5,7 +5,7 @@
     <Label value="Complex" />
   </Labels>
   <Text name="text" value="Just some random text to label"></Text>
-
+  <TextSpace name="txt3" toName="text" rows="4" cols="50" />
   <Number name="num" toName="text" min="1" max="10"/>
   <DateTime name="dt" toName="text" showDate="true" showTime="true"/>
   <TextArea name="txt" toName="text" editable="true"/>
