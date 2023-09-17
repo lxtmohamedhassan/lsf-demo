@@ -3,7 +3,6 @@ import { inject, observer } from 'mobx-react';
 import { types } from 'mobx-state-tree';
 import { Input } from 'antd';
 
-import InfoModal from '../../components/Infomodal/Infomodal';
 import { guidGenerator } from '../../core/Helpers';
 import Registry from '../../core/Registry';
 import { AnnotationMixin } from '../../mixins/AnnotationMixin';
@@ -17,28 +16,26 @@ import PerItemMixin from '../../mixins/PerItem';
 import { FF_LSDV_4583, isFF } from '../../utils/feature-flags';
 
 /**
- * The TextSpace tag supports annotating text data using a TextSpace element.
+ * The TextSpace tag allows annotating text data using a TextSpace element.
  *
- * Use with the following data types: audio, image, HTML, paragraphs, text, time series, video
+ * Use this tag with various data types such as audio, image, HTML, paragraphs, text, time series, and video.
  *
- * [^FF_LSDV_4583]: `fflag_feat_front_lsdv_4583_multi_image_segmentation_short` should be enabled for `perItem` functionality
+ * [^FF_LSDV_4583]: Enable `fflag_feat_front_lsdv_4583_multi_image_segmentation_short` for `perItem` functionality.
  *
  * @example
- * <!--Basic labeling configuration for text annotation -->
+ * <!-- Basic labeling configuration for text annotation -->
  * <View>
  *   <TextSpace name="txt" toName="txt" />
  * </View>
  *
  * @name TextSpace
  * @meta_title TextSpace Tag for Text Annotation
- * @meta_description Customize Label Studio with the TextSpace tag to annotate text data in your machine learning and data science projects.
+ * @meta_description Customize Label Studio using the TextSpace tag to annotate text data in your machine learning and data science projects.
  * @param {string} name                       - Name of the element
  * @param {string} toName                     - Name of the element that you want to annotate
- * @param {number} [rows=4]                  - Number of visible text rows in the textspace
- * @param {number} [cols=50]                 - Number of visible text columns in the textspace
- * @param {boolean} [required=false]          - Whether to require annotation
- * @param {string} [requiredMessage]          - Message to show if annotation is required but missing
- * @param {boolean} [perItem]                 - Use this tag to annotate specific items inside the object instead of the whole object[^FF_LSDV_4583]
+ * @param {number} [rows=4]                  - Number of visible text rows in the textspace (default is 4)
+ * @param {number} [cols=50]                 - Number of visible text columns in the textspace (default is 50)
+ * @param {boolean} [showcount=false]        - Whether to show character count (default is false)
  */
 
 const { TextArea } = Input;
@@ -63,31 +60,33 @@ const Model = types
       return 'text'; // 'text' will be the key of the TextSpace value in the result object
     },
     selectedValues() { // this view must exist as any control-tag must follow the ClassificationBase mixin rules
-      console.log('View 1: selectedValues()');
       return self._value;
     },
 
     get holdsState() { // this view must exist to keep the result object in the state tree
-      console.log('View 2: holdsState()');
       return isDefined(self._value);
     },
   }))
   .actions(self => ({
+    needsUpdate() { // this action runs once the tag is rendered and checks whether an update is needed for the TextSpace tag's value.
+      // Check if a result object for this tag exists in /annotations/1.json.
+      if (self.result) {
+        self._value = self.result.mainValue; // Update the TextSpace's value with the value from the result object.
+      } else {
+        self._value = null; // Set the TextSpace's value to null since there is no result object.
+      }
+    },
     beforeSend() { // this action gets executed before submitting the task values
-      console.log('Action 3: beforeSend()');
-      // Add defaultValue to results if no value added in the TextSpace
-      if (!isDefined(self._value)) alert('Value is required');
+      console.log('result object', self.result);
       return;
     },
 
     setValue(value) { // this action is responsible for updating the result object with the onChange value
-      console.log('Action 5: setValue()');
       self._value = value;
       self.updateResult();
     },
 
     onChange(e) {
-      console.log('Action 6: onChange()');
       const value = e.target.value;
 
       self.setValue(value);
