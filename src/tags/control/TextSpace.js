@@ -43,7 +43,7 @@ const { TextArea } = Input;
 const TagAttrs = types.model({
   toname: types.maybeNull(types.string),
   rows: types.optional(types.string, '4'),
-  cols: types.optional(types.string, '50'),
+  cols: types.maybeNull(types.string),
   value: types.optional(types.string, ''),
   showcount: types.optional(types.boolean, false), // no camelCase naming
 });
@@ -114,16 +114,23 @@ const HtxTextSpace = inject('store')(
   observer(({ item, store }) => {
     const props = {
       rows: item.rows,
-      cols: item.cols,
       name: item.name,
       value: item._value,
       showCount: item.showcount,
       onChange: item.onChange,
     };
 
+    const styles = {};
+
+    if (item.cols) {
+      styles.width = item.cols + 'rem';
+    } else {
+      styles.width = '100%';
+    }
+
     return (
       <div>
-        <TextArea {...props} />
+        <TextArea {...props} style={styles} />
         {/* {store.settings.enableTooltips && item.required && (
           <sup style={{ fontSize: '9px' }}>Requiredzzz</sup>
         )} */}
