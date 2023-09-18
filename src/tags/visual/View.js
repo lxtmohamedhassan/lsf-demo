@@ -94,6 +94,7 @@ const Model = types
       'video',
       'videorectangle',
       'ranker',
+      'textspace',
     ]),
   });
 

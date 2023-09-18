@@ -6,6 +6,16 @@
             "result": [
                 {
                     "value": {
+                        "text": "abc def"
+                    },
+                    "id": "W7wMwaYoa9",
+                    "from_name": "txt3",
+                    "to_name": "text",
+                    "type": "textspace",
+                    "origin": "manual"
+                },
+                {
+                    "value": {
                         "number": 2
                     },
                     "id": "W7wMwaYoa9",
@@ -32,8 +42,8 @@
                         ]
                     },
                     "id": "0yMHFegGSK",
-                    "from_name": "txt",
-                    "to_name": "text",
+                    "from_name": "txt2",
+                    "to_name": "text2",
                     "type": "textarea",
                     "origin": "manual"
                 },
