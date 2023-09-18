@@ -6,22 +6,13 @@ import { Input } from 'antd';
 import { guidGenerator } from '../../core/Helpers';
 import Registry from '../../core/Registry';
 import { AnnotationMixin } from '../../mixins/AnnotationMixin';
-import PerRegionMixin from '../../mixins/PerRegion';
-import RequiredMixin from '../../mixins/Required';
 import { isDefined } from '../../utils/utilities';
 import ControlBase from './Base';
-import { ReadOnlyControlMixin } from '../../mixins/ReadOnlyMixin';
 import ClassificationBase from './ClassificationBase';
-import PerItemMixin from '../../mixins/PerItem';
-import { FF_LSDV_4583, isFF } from '../../utils/feature-flags';
 
 /**
- * The TextSpace tag allows annotating text data using a TextSpace element.
- *
- * Use this tag with various data types such as audio, image, HTML, paragraphs, text, time series, and video.
- *
- * [^FF_LSDV_4583]: Enable `fflag_feat_front_lsdv_4583_multi_image_segmentation_short` for `perItem` functionality.
- *
+ * The TextSpace tag is used to display a text area for user input. Use for
+		transcription, paraphrasing, or captioning tasks.
  * @example
  * <!-- Basic labeling configuration for text annotation -->
  * <View>
@@ -57,7 +48,7 @@ const Model = types
   .views(self => ({
 
     get valueType() {
-      return 'text'; // 'text' will be the key of the TextSpace value in the result object
+      return 'text'; // 'text' will be the key of the TextSpace value object in the result object as shown below
     },
     selectedValues() { // this view must exist as any control-tag must follow the ClassificationBase mixin rules
       return self._value;
@@ -69,19 +60,18 @@ const Model = types
   }))
   .actions(self => ({
     needsUpdate() { // this action runs once the tag is rendered and checks whether an update is needed for the TextSpace tag's value.
-      // Check if a result object for this tag exists in /annotations/1.json.
-      if (self.result) {
-        self._value = self.result.mainValue; // Update the TextSpace's value with the value from the result object.
+      if (self.result) { // Check if a result object for this tag exists or not
+        self._value = self.result.mainValue; // Set the TextSpace's value with the value from the result object.
       } else {
         self._value = null; // Set the TextSpace's value to null since there is no result object.
       }
     },
-    beforeSend() { // this action gets executed before submitting the task values
+    beforeSend() { // this action runs before submitting the task values
       console.log('result object', self.result);
       return;
     },
 
-    setValue(value) { // this action is responsible for updating the result object with the onChange value
+    setValue(value) { // this action is responsible for updating the result object with the received value
       self._value = value;
       self.updateResult();
     },
@@ -89,22 +79,13 @@ const Model = types
     onChange(e) {
       const value = e.target.value;
 
-      self.setValue(value);
+      self.setValue(value); // calling the setValue action to update the result object
     },
-
-    /* requiredModal() {
-      console.log('Action 8: requiredModal()');
-      InfoModal.warning(self.requiredmessage || `TextSpace "${self.name}" is required.`);
-    }, */
   }));
 
 const TextSpaceModel = types.compose('TextSpaceModel',
   ControlBase,
   ClassificationBase,
-  RequiredMixin,
-  ReadOnlyControlMixin,
-  PerRegionMixin,
-  ...(isFF(FF_LSDV_4583) ? [PerItemMixin] : []),
   AnnotationMixin,
   TagAttrs,
   Model,
@@ -131,9 +112,6 @@ const HtxTextSpace = inject('store')(
     return (
       <div>
         <TextArea {...props} style={styles} />
-        {/* {store.settings.enableTooltips && item.required && (
-          <sup style={{ fontSize: '9px' }}>Requiredzzz</sup>
-        )} */}
       </div>
     );
   }),
